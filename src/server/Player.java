@@ -6,10 +6,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Random;
+import javax.swing.JLabel;
 import server.DBConnect;
 import server.Server;
-import static server.Server.cbLabels;
-import static server.Server.pbLabels;
+
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -36,17 +36,18 @@ public class Player implements Runnable {
     String enemyName;
     String userName;
     boolean enableLogin = false;
+    String[][] playerBoardLabels;
+    private String[][] pbLabels = new String[10][10];
 
     /**
      * Constructs a handler thread for a given socket and mark initializes the
      * stream fields, displays the first two welcoming messages.
      */
-    public Player(Socket socket, String mark, String[][] board, int which) {
+    public Player(Socket socket, String mark, int which) {
         System.out.println("A client has connected");
-        Server.counter++;
         this.socket = socket;
         this.mark = mark;
-        this.board = board;
+        this.board = new String[10][10];
         for (int row = 0; row < 10; row++) {
             for (int col = 0; col < 10; col++) {
                 board[row][col] = "*";
@@ -57,7 +58,7 @@ public class Player implements Runnable {
         try {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
-            output.println("WELCOME " + mark);
+            output.println("BOARDSENT:" + mark);
             String total = "";
             for (int row = 0; row < 10; row++) {
                 for (int col = 0; col < 10; col++) {
@@ -69,6 +70,10 @@ public class Player implements Runnable {
         } catch (IOException e) {
             System.out.println("Player is unable to connect: " + e);
         }
+    }
+    
+    public String[][] getLabels() {
+        return pbLabels;
     }
 
     public synchronized void generate(String[][] board) {
@@ -166,7 +171,7 @@ public class Player implements Runnable {
             System.out.println("A client has disconnected");
             //Server.counter++;
             pbLabels = new String[10][10];
-            cbLabels = new String[10][10];
+            //cbLabels = new String[10][10];
             board = new String[10][10];
             enemy.println("PLAYERDC");
         } finally {
